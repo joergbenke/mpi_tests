@@ -112,14 +112,6 @@ int main( int argc, char **argv )
   if ( rank == 0 )
     {
 
-      printf( "Approximation of PI: %15.13lf\n", pi );
-      printf( "Error: %15.13g\n", fabs( pi - M_PI ) );
-      printf( "Nr of iterations: %lu\n", iter );
-      printf( "Max. MFLOPS: %10.2g\n", max_mflops );
-      printf( "Min. MFLOPS: %10.2g\n", min_mflops );
-      printf( "Wallclocktime: %f s\n", end - begin );
-      
-
       FILE *fp = fopen( "output.txt", "w" );
        
       fprintf( fp, "Approximation of PI: %15.13lf\n", pi );
@@ -128,10 +120,33 @@ int main( int argc, char **argv )
       fprintf( fp, "Max. MFLOPS: %10.2g\n", max_mflops );
       fprintf( fp, "Min. MFLOPS: %10.2g\n", min_mflops );
       fprintf( fp, "Wallclocktime: %f s\n", end - begin );
-    
-      fclose( fp );
 
-    }
+      fclose( fp );
+      
+      }
+      
+      
+   
+    if ( rank == 0 )
+      {
+          
+        FILE *fp = fopen( "output.txt", "w" );
+        for ( unsigned int i = 1; i < size; i++ )
+               {
+                        MPI_Recv( &mflops, 1, MPI_DOUBLE, i, MPI_COMM_WORLD, status );
+                        fprintf(  fp, "MFLOPS: %f\n", mflops );
+                    
+                }
+      fclose( fp );
+          
+    }else{
+        MPI_Send( &mflops, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD, status );
+      }
+      
+          
+       
+
+
 
   MPI_Finalize( );
 
